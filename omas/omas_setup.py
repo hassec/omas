@@ -98,9 +98,11 @@ class IMAS_json_dir(str):
 
 
 omas_dir = os.path.abspath(str(os.path.dirname(__file__))) + os.sep
+print("omas_dir", omas_dir)
+print("glob", glob.glob(omas_dir  + "**", recursive=True ))
 omas_install_dir = os.path.abspath(omas_dir + os.sep + '..') + os.sep
 imas_json_dir = IMAS_json_dir(omas_dir + os.sep + 'imas_structures' + os.sep)
-
+print("imas_json_dir", imas_json_dir, omas_dir, os.sep)
 omas_git_repo = False
 if os.path.exists(omas_install_dir + '.git') and os.access(omas_install_dir + '.git', os.W_OK):
     omas_git_repo = True
@@ -130,6 +132,9 @@ class IMAS_versions(OrderedDict):
         for item, value in list(self.items()):
             if not len(glob.glob(imas_json_dir + os.sep + value + os.sep + '*.json')):
                 del self[item]
+        print("json_dir", imas_json_dir)
+        print("files:", sorted(glob.glob(imas_json_dir + os.sep + '*')))
+        print("self", self)
 
 
 # imas versions

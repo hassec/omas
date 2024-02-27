@@ -3,7 +3,6 @@ requires = ["setuptools", "Cython"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
-where = ["."]
 exclude = ["sphinx*"]
 
 [tool.setuptools.dynamic]
