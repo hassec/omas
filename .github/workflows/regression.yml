@@ -27,17 +27,23 @@ jobs:
     - name: git version
       run: git --version
 
-    - name: Install hdf5 & netcdf
+    - name: Install hdf5 & netcdf & numpy
       run: |
           sudo apt-get update
           sudo apt-get install libhdf5-dev libnetcdf-dev
 
     - name: Build & Install OMAS
       run: |
+        # This is a build time dependency of pygacode
+        # but before 1.0 it did not specify it
+        python3 -m pip install --upgrade pip
+        python3 -m pip install numpy
+
         python3 -m pip install build
         python3 -m build --sdist 
         # TODO do not hard code version here
-        python3 -m pip install "./dist/omas-0.93.0.tar.gz[machine]"
+        # --no-build-isolation to avoid pygacode bug in < 1.0
+        python3 -m pip install --no-build-isolation "./dist/omas-0.93.0.tar.gz[machine]"
 
     - name: Move to root and try importing OMAS
       run: |
