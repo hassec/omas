@@ -15,26 +15,46 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
+      matrix:
+        python-version: ['3.7']
+        # python-version: ['3.7', '3.8', '3.9', '3.10', '3.11', '3.12']
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.6'
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
 
-    - name: Install numpy
+    - name: Legacy Build & Install OMAS
+      if: ${{matrix.python-version == '3.6' || matrix.python-version == '3.7'}}
       run: |
-        python3 -m pip install numpy
+        sudo apt-get update
+        sudo apt-get install libhdf5-dev libnetcdf-dev
 
-    - name: Install dependencies
-      run: |
-        python3 -m pip install -r requirements.txt
+        python3 -m pip install --upgrade pip
 
-    - name: Install OMAS
+        python3 -m pip install build
+        python3 -m build --sdist
+
+        # numpy is a build time dependency of pygacode
+        # but before 1.0 it did not specify it so we need to build without build isolation
+        # and manually install numpy and other build dependencies like Cython and wheel
+        python3 -m pip install --upgrade numpy Cython wheel setuptools
+        # TODO do not hard code version here
+        # --no-build-isolation to avoid pygacode bug in < 1.0
+        python3 -m pip install --no-build-isolation "./dist/omas-0.93.0.tar.gz[machine]"
+
+    - name: Modern Build & Install OMAS
+      if: ${{!( matrix.python-version == '3.6' || matrix.python-version == '3.7' )}}
       run: |
-        python3 -m pip install .[machine]
+        python3 -m pip install --upgrade pip
+
+        python3 -m pip install build
+        python3 -m build --sdist
+        python3 -m pip install "./dist/omas-0.93.0.tar.gz[machine]"
 
     - name: Move to root and try importing OMAS
       run: |
@@ -43,4 +63,7 @@ jobs:
 
     - name: Run OMAS tests
       run: |
+        # TODO the tests pickup omas from the python files in the directory not the installed version
+        # so to make that work we run an editable install to create the omas_cython lib in the right place.
+        python3 -m pip install -e .
         make test
