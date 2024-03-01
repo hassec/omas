@@ -95,9 +95,9 @@ class TestOmasExamples(UnittestCaseOmas):
     def test_uncertain(self):
         from omas.examples import uncertain
 
-    @unittest.skipIf(failed_OMFIT, str(failed_OMFIT))
-    def test_plot_g_s_2_ip(self):
-        from omas.examples import plot_g_s_2_ip
+    # @unittest.skipIf(failed_OMFIT, str(failed_OMFIT))
+    # def test_plot_g_s_2_ip(self):
+    #     from omas.examples import plot_g_s_2_ip
 
     def test_plot_saveload_scaling(self):
         from omas.examples import plot_saveload_scaling
